@@ -25,3 +25,10 @@ features = ["io-util"]
 [dependencies.tokio]
 version = "1.4"
 features = ["full", "sync"]
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "str"
+harness = false
