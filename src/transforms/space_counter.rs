@@ -1,4 +1,5 @@
 use crate::core::{self, Event, Task};
+use crate::str::total_spaces;
 use async_trait::async_trait;
 use tokio::sync::mpsc;
 
@@ -19,10 +20,7 @@ impl Task for SpaceCounter {
         let mut ingress = self.ingress;
 
         while let Some(mut event) = ingress.recv().await {
-            let spaces = event
-                .line
-                .chars()
-                .fold(0, |acc, c| if c == ' ' { acc + 1 } else { acc });
+            let spaces = total_spaces(&event.line);
             event.spaces = Some(spaces);
             self.egress.send(event).await?
         }

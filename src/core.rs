@@ -10,7 +10,7 @@ pub trait Task {
 #[derive(Debug)]
 pub struct Event {
     pub line: Box<str>,
-    pub spaces: Option<usize>,
+    pub spaces: Option<u32>,
 }
 
 pub enum Error {
