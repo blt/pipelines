@@ -22,8 +22,8 @@ fi
 
 for target in "${targets[@]}" ; do
     BIN="${TARGET_DIR}/release/${target}"
-    perf stat --repeat=5 bash -c "zcat ${RESOURCES_BIG_LOG} | ${BIN} > /dev/null"
-    zcat "${RESOURCES_BIG_LOG}" | perf record --output="${PERF_DIR}/${target}-perf.data" --call-graph dwarf "${BIN}" > /dev/null
+    perf stat --repeat=5 bash -c "zcat ${RESOURCE_BIG_LOG} | ${BIN} > /dev/null"
+    zcat "${RESOURCE_BIG_LOG}" | perf record --output="${PERF_DIR}/${target}-perf.data" --call-graph dwarf "${BIN}" > /dev/null
 
     perf script --input="${PERF_DIR}/${target}-perf.data" | inferno-collapse-perf > "${PERF_DIR}/${target}-stacks.folded"
     inferno-flamegraph < "${PERF_DIR}/${target}-stacks.folded" > "${PERF_DIR}/${target}-flamegraph.svg"

@@ -6,6 +6,7 @@ where
     R: io::BufRead,
     W: io::Write,
 {
+    coz::begin!("std_baseline");
     let mut lines = stdin.lines();
     while let Some(Ok(line)) = lines.next() {
         let spaces = total_spaces(&line);
@@ -14,6 +15,7 @@ where
         stdout.write_all(&line.as_bytes())?;
         stdout.write_all(b"\n")?;
     }
+    coz::end!("std_baseline");
     Ok(())
 }
 

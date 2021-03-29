@@ -17,7 +17,7 @@ if [ ! -f "${RESOURCE_SMALL_LOG}" ]; then
 fi
 
 cargo build --release
-targets=("baseline" "std-baseline" "pipeline")
+targets=("baseline" "std-baseline" "pipeline" "streamer")
 mkdir -p "${PERF_DIR}"
 
 for target in "${targets[@]}" ; do

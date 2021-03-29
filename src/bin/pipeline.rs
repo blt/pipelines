@@ -10,6 +10,7 @@ use tokio::sync::mpsc;
 use tokio::task;
 
 async fn run() {
+    coz::begin!("pipeline");
     let (a_snd, a_rcv): (mpsc::Sender<Event>, mpsc::Receiver<Event>) = mpsc::channel(2048);
     let (b_snd, b_rcv) = mpsc::channel(2048);
 
@@ -27,6 +28,7 @@ async fn run() {
     workers.push(writer);
 
     while workers.next().await.is_some() {}
+    coz::end!("pipeline");
 }
 
 fn main() {

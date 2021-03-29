@@ -8,8 +8,8 @@ async fn inner(
     stdin: io::BufReader<io::Stdin>,
     mut stdout: io::BufWriter<io::Stdout>,
 ) -> Result<(), io::Error> {
+    coz::begin!("baseline");
     let mut lines = stdin.lines();
-
     while let Some(l) = lines.next_line().await? {
         let spaces = total_spaces(&l);
         let header = get_header(spaces as usize);
@@ -17,6 +17,7 @@ async fn inner(
         stdout.write_all(l.as_bytes()).await?;
         stdout.write_all(b"\n").await?;
     }
+    coz::end!("baseline");
     Ok(())
 }
 
@@ -29,7 +30,7 @@ async fn run() {
 }
 
 fn main() {
-    let runtime: Runtime = runtime::Builder::new_current_thread()
+    let runtime: Runtime = runtime::Builder::new_multi_thread()
         .enable_io()
         .build()
         .expect("Unable to create async runtime");
