@@ -145,5 +145,5 @@ my system, with some detail removed for clarity:
             4.2215 +- 0.0111 seconds time elapsed  ( +-  0.26% )
 ```
 
-Because only a single run is done the numbers will not be very
-stable. `stress.sh` controls for this somewhat.
+Because only a single run is done in `stress_one.sh` the numbers are not be very
+stable. `stress.sh` controls for this somewhat by running each example 10 times.
