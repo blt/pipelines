@@ -1,8 +1,9 @@
 use crate::core::{self, Event, Task};
 use crate::str::get_header;
 use async_trait::async_trait;
+use futures::channel::mpsc;
+use futures::StreamExt;
 use tokio::io::{self, AsyncWriteExt};
-use tokio::sync::mpsc;
 
 pub struct Stdout {
     ingress: mpsc::Receiver<Event>,
@@ -22,7 +23,7 @@ impl Task for Stdout {
         let mut ingress = self.ingress;
         let mut egress = self.egress;
 
-        while let Some(event) = ingress.recv().await {
+        while let Some(event) = ingress.next().await {
             let header = get_header(event.spaces.unwrap_or(0) as usize);
             egress.write_all(header).await?;
             egress.write_all(event.line.as_ref().as_bytes()).await?;

@@ -1,3 +1,4 @@
+use futures::channel::mpsc;
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
 use pipeline::core::{Event, Task};
@@ -6,7 +7,6 @@ use pipeline::sources::Stdin;
 use pipeline::transforms::SpaceCounter;
 use tokio::runtime;
 use tokio::runtime::Runtime;
-use tokio::sync::mpsc;
 use tokio::task;
 
 async fn run() {

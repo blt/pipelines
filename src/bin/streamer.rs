@@ -1,28 +1,33 @@
+use futures::pin_mut;
+use futures_util::StreamExt;
 use pipeline::core::Event;
 use pipeline::str::{get_header, total_spaces};
 use tokio::io::{self, AsyncBufReadExt, AsyncWriteExt};
 use tokio::runtime;
 use tokio::runtime::Runtime;
 use tokio_stream::wrappers::LinesStream;
-use tokio_stream::StreamExt;
 
 async fn run() -> Result<(), std::io::Error> {
     let stdin = io::BufReader::new(io::stdin());
     let mut stdout = io::BufWriter::new(io::stdout());
 
-    let mut stream = LinesStream::new(stdin.lines())
-        .filter_map(|l| l.ok())
-        .filter_map(|line| {
-            Some(Event {
-                line: line.into_boxed_str(),
-                spaces: None,
-            })
+    let stream = LinesStream::new(stdin.lines())
+        .filter_map(|l| async {
+            match l {
+                Ok(line) => Some(Event {
+                    line: line.into_boxed_str(),
+                    spaces: None,
+                }),
+                Err(_) => None,
+            }
         })
-        .map(|mut event| {
+        .map(|mut event| async {
             let spaces = total_spaces(&event.line);
             event.spaces = Some(spaces);
             event
-        });
+        })
+        .buffer_unordered(128);
+    pin_mut!(stream);
 
     while let Some(event) = stream.next().await {
         let spaces = total_spaces(&event.line);

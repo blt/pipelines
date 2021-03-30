@@ -19,6 +19,10 @@ version = "0.3"
 default-features = false
 features = ["std"]
 
+[dependencies.futures-util]
+version = "0.3"
+default-features = true
+
 [dependencies.tokio-stream]
 version = "0.1"
 features = ["io-util"]

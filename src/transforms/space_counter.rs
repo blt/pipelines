@@ -1,7 +1,9 @@
 use crate::core::{self, Event, Task};
 use crate::str::total_spaces;
 use async_trait::async_trait;
-use tokio::sync::mpsc;
+use futures::channel::mpsc;
+use futures::stream::StreamExt;
+use futures::SinkExt;
 
 pub struct SpaceCounter {
     ingress: mpsc::Receiver<Event>,
@@ -16,13 +18,14 @@ impl SpaceCounter {
 
 #[async_trait]
 impl Task for SpaceCounter {
-    async fn run(self) -> Result<(), core::Error> {
+    async fn run(mut self) -> Result<(), core::Error> {
         let mut ingress = self.ingress;
+        let mut egress = self.egress;
 
-        while let Some(mut event) = ingress.recv().await {
+        while let Some(mut event) = ingress.next().await {
             let spaces = total_spaces(&event.line);
             event.spaces = Some(spaces);
-            self.egress.send(event).await?
+            egress.send(event).await?
         }
         Ok(())
     }

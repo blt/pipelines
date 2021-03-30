@@ -1,6 +1,6 @@
 use async_trait::async_trait;
+use futures::channel::mpsc;
 use tokio::io;
-use tokio::sync::mpsc;
 
 #[async_trait]
 pub trait Task {
@@ -15,7 +15,7 @@ pub struct Event {
 
 pub enum Error {
     Io(io::Error),
-    Send(mpsc::error::SendError<Event>),
+    Send(mpsc::SendError),
 }
 
 impl From<io::Error> for Error {
@@ -24,8 +24,8 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<mpsc::error::SendError<Event>> for Error {
-    fn from(err: mpsc::error::SendError<Event>) -> Self {
+impl From<mpsc::SendError> for Error {
+    fn from(err: mpsc::SendError) -> Self {
         Error::Send(err)
     }
 }
