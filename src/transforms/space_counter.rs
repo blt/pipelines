@@ -13,7 +13,7 @@ pub struct SpaceCounter {
 
 impl SpaceCounter {
     pub fn new(ingress: mpsc::Receiver<BlockEvents>, egress: mpsc::Sender<BlockEvents>) -> Self {
-        Self { egress, ingress }
+        Self { ingress, egress }
     }
 }
 
