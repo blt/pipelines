@@ -10,7 +10,7 @@ TARGET_DIR="${__dir}/target"
 PERF_DIR="${TARGET_DIR}/perf"
 
 cargo build --release
-targets=("std-baseline" "baseline" "pipeline" "streamer")
+targets=("std-baseline" "baseline" "pipeline")
 mkdir -p "${PERF_DIR}"
 
 for target in "${targets[@]}" ; do

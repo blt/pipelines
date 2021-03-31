@@ -1,17 +1,18 @@
-use crate::core::{self, Event, Task};
+use crate::core::{self, BlockEvents, Task};
 use crate::str::total_spaces;
 use async_trait::async_trait;
 use futures::channel::mpsc;
 use futures::stream::StreamExt;
 use futures::SinkExt;
+use tokio::task;
 
 pub struct SpaceCounter {
-    ingress: mpsc::Receiver<Event>,
-    egress: mpsc::Sender<Event>,
+    ingress: mpsc::Receiver<BlockEvents>,
+    egress: mpsc::Sender<BlockEvents>,
 }
 
 impl SpaceCounter {
-    pub fn new(ingress: mpsc::Receiver<Event>, egress: mpsc::Sender<Event>) -> Self {
+    pub fn new(ingress: mpsc::Receiver<BlockEvents>, egress: mpsc::Sender<BlockEvents>) -> Self {
         Self { egress, ingress }
     }
 }
@@ -20,12 +21,19 @@ impl SpaceCounter {
 impl Task for SpaceCounter {
     async fn run(mut self) -> Result<(), core::Error> {
         let mut ingress = self.ingress;
-        let mut egress = self.egress;
+        let egress = self.egress;
 
-        while let Some(mut event) = ingress.next().await {
-            let spaces = total_spaces(&event.line);
-            event.spaces = Some(spaces);
-            egress.send(event).await?
+        while let Some(mut events) = ingress.next().await {
+            let mut task_egress = egress.clone();
+            task::spawn(async move {
+                events.iter_mut().for_each(|event| {
+                    event.spaces = Some(total_spaces(&event.line));
+                });
+                task_egress
+                    .send(events)
+                    .await
+                    .expect("unsure what to do with error")
+            });
         }
         Ok(())
     }

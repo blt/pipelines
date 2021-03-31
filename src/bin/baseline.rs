@@ -8,7 +8,6 @@ async fn inner(
     stdin: io::BufReader<io::Stdin>,
     mut stdout: io::BufWriter<io::Stdout>,
 ) -> Result<(), io::Error> {
-    coz::begin!("baseline");
     let mut lines = stdin.lines();
     while let Some(l) = lines.next_line().await? {
         let spaces = total_spaces(&l);
@@ -17,7 +16,6 @@ async fn inner(
         stdout.write_all(l.as_bytes()).await?;
         stdout.write_all(b"\n").await?;
     }
-    coz::end!("baseline");
     Ok(())
 }
 

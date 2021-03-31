@@ -1,7 +1,7 @@
 use futures::channel::mpsc;
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
-use pipeline::core::{Event, Task};
+use pipeline::core::{BlockEvents, Task};
 use pipeline::sinks::Stdout;
 use pipeline::sources::Stdin;
 use pipeline::transforms::SpaceCounter;
@@ -10,11 +10,11 @@ use tokio::runtime::Runtime;
 use tokio::task;
 
 async fn run() {
-    coz::begin!("pipeline");
-    let (a_snd, a_rcv): (mpsc::Sender<Event>, mpsc::Receiver<Event>) = mpsc::channel(2048);
-    let (b_snd, b_rcv) = mpsc::channel(2048);
+    let (a_snd, a_rcv): (mpsc::Sender<BlockEvents>, mpsc::Receiver<BlockEvents>) =
+        mpsc::channel(128);
+    let (b_snd, b_rcv) = mpsc::channel(128);
 
-    let stdin = Stdin::new(a_snd);
+    let stdin = Stdin::new(a_snd, 4096);
     let counter = SpaceCounter::new(a_rcv, b_snd);
     let stdout = Stdout::new(b_rcv);
 
@@ -28,7 +28,6 @@ async fn run() {
     workers.push(writer);
 
     while workers.next().await.is_some() {}
-    coz::end!("pipeline");
 }
 
 fn main() {

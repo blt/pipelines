@@ -11,7 +11,7 @@ PERF_DIR="${TARGET_DIR}/perf"
 RESOURCE_BIG_LOG="${__dir}/resources/stable_big.log.gz"
 
 cargo build --release
-targets=("baseline" "std-baseline" "pipeline" "streamer")
+targets=("baseline" "std-baseline" "pipeline")
 mkdir -p "${PERF_DIR}"
 
 if [ ! -f "${RESOURCE_BIG_LOG}" ]; then

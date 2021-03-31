@@ -21,6 +21,66 @@ through pv. Here's the top-line for my system:
 
 ## Summary
 
+There are four programs in this repository:
+
+* `std-baseline`: uses sync code from std in one loop
+* `baseline`: uses tokio and a single task
+* `pipeline`: uses tokio with multiple tasks communicating across MPSC queues, batching
+
+Each program is intended to do the same thing but help us explore different
+approaches to achieving it. Aside from buffering at the stdin boundary there is
+no internal batching in `std-baseline` and `baseline`. Backpressure is
+accomplised in `pipeline` by using bounded queues, in the other programs by
+maintaining sequential/async program structure. The program `pipeline` _does_
+batch lines and processes them downstream in batches. Here's are their relative
+speeds on my system:
+
+```
+> ./hyperfine.sh
+    Finished release [optimized + debuginfo] target(s) in 0.02s
+Benchmark #1: baseline
+  Time (mean ± σ):      5.379 s ±  3.160 s    [User: 7.128 s, System: 2.319 s]
+  Range (min … max):    4.251 s … 14.365 s    10 runs
+
+Benchmark #2: std-baseline
+  Time (mean ± σ):      4.177 s ±  0.048 s    [User: 6.302 s, System: 0.382 s]
+  Range (min … max):    4.142 s …  4.289 s    10 runs
+
+Benchmark #3: pipeline
+  Time (mean ± σ):      4.854 s ±  0.169 s    [User: 11.110 s, System: 2.969 s]
+  Range (min … max):    4.551 s …  5.139 s    10 runs
+
+Summary
+  'std-baseline' ran
+    1.16 ± 0.04 times faster than 'pipeline'
+    1.29 ± 0.76 times faster than 'baseline'
+```
+
+You can duplicate this by running `./hyperfine.sh` on your system. You can see
+more detailed information by running `./stress.sh`.
+
+## Results
+
+Batching's where it's at. While `pipeline` incurs more overhead that either
+`baseline` or `std-baseline` it is competitive with `baseline` while being more
+flexible for future expansion. Both `baseline` and `std-baseline` are
+essentially custom-built for this problem. The primary data structure for
+`pipeline` is `BlockEvents`, a batch of `Event` types. This is arranged as an
+array-of-structs internally and future work might consider the benefits of [data
+oriented design](http://jamesmcm.github.io/blog/2020/07/25/intro-dod/)
+instead. There are also some tricks in Prof. Massey's
+[fasthello](https://github.com/BartMassey/fasthello) we might consider but I
+think the basic notion that we _should_ be batching in
+[Vector](https://github.com/timberio/vector/) is demonstrated. The stdin source
+for `pipeline` fails to saturate its outbound queue, also.
+
+# Former README
+
+This section contains the former contents of the README and is preserved for
+comparison.
+
+## Summary
+
 Every program in this repository has sharply less throughput than theoretical
 maximum. Each program is _line oriented_, meaning it operates on the level of a
 single line traveling through the system. I conjecture that overhead per line

@@ -6,12 +6,11 @@ edition = "2018"
 
 [profile.release]
 codegen-units = 1 # Increases compile time but improve optmization alternatives.
-lto = false       # Do not LTO, allows 'coz'
+lto = true        # Perform link-time optimization of program.
 opt-level = 3     # Optimize for speed.
 debug = true      # Leave debug symbols in the build.
 
 [dependencies]
-coz = "0.1"
 async-trait = "0.1"
 
 [dependencies.futures]
@@ -23,13 +22,9 @@ features = ["std"]
 version = "0.3"
 default-features = true
 
-[dependencies.tokio-stream]
-version = "0.1"
-features = ["io-util"]
-
 [dependencies.tokio]
 version = "1.4"
-features = ["full", "sync"]
+features = ["rt", "rt-multi-thread", "io-std", "io-util", "process", "sync"]
 
 [dev-dependencies]
 criterion = "0.3"
