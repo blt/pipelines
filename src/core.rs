@@ -58,15 +58,6 @@ impl BlockEvents {
         }
     }
 
-    pub fn push(&mut self, event: Event) -> Result<(), Event> {
-        if self.events.len() == self.capacity {
-            Err(event)
-        } else {
-            self.events.push(event);
-            Ok(())
-        }
-    }
-
     pub fn iter_mut(&mut self) -> BlockIterMut {
         BlockIterMut {
             inner: self.events.iter_mut(),
